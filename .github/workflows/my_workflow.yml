@@ -89,7 +89,7 @@ jobs:
       - name: Terraform Apply
         if: ${{ inputs.run_apply }}
         run: | 
-          echo "${{ needs.plan_and_apply.outputs.tfplan }}" | base64 --decode > tfplan
+          echo "${{ needs.plan.outputs.tfplan }}" | base64 --decode > tfplan
           terraform apply tfplan
 
       
