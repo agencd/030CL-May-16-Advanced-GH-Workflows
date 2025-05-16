@@ -63,7 +63,9 @@ jobs:
           else
             terraform plan -var-file ${{ env.TF_WORKSPACE }}.tfvars -out=tfplan
           fi
-          echo "tfplan=$(base64 < tfplan)" >> $GITHUB_OUTPUT
+          echo "tfplan<<EOF" >> $GITHUB_OUTPUT
+          base64 < tfplan >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
   destroy_or_apply:
     needs: plan
     if: ${{ inputs.run_destroy }}
