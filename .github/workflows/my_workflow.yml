@@ -65,7 +65,7 @@ jobs:
           fi
           echo "tfplan=$(base64 < tfplan)" >> $GITHUB_OUTPUT
   destroy_or_apply:
-    needs: plan_and_apply
+    needs: plan
     if: ${{ inputs.run_destroy }}
     runs-on: ubuntu-latest #linux
     steps:
