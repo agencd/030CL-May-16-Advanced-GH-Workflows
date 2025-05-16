@@ -34,7 +34,7 @@ env:
   # env.TF_WORKSPACE = inputs.environment
   # env.TF_WORKSPACE = inputs.environment or sandbox
 jobs:
-  plan_and_apply:
+  plan:
     runs-on: ubuntu-latest #linux
     outputs:
       tfplan: ${{ steps.plan.outputs.tfplan }}
@@ -58,10 +58,10 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: |
-          if [[ "${{ inputs.destroy }}" == "true" ]]; then
+          if [[ "${{ inputs.run_destroy }}" == "true" ]]; then
             terraform plan -destroy -var-file ${{ env.TF_WORKSPACE }}.tfvars -out=tfplan
           else
-            terraform plan -var-file ${{ env.TF_WORKSPACE }}.tfvars
+            terraform plan -var-file ${{ env.TF_WORKSPACE }}.tfvars -out=tfplan
           fi
           echo "tfplan=$(base64 < tfplan)" >> $GITHUB_OUTPUT
   destroy_or_apply:
