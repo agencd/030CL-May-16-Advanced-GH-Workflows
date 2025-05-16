@@ -82,6 +82,6 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -destroy -var-file ${{ env.TF_WORKSPACE }}.tfvars -out=tfplan
       - name: Terraform destroy
-        run: terraform destroy tfplan
+        run: terraform apply tfplan
 
       
