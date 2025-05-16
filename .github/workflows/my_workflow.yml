@@ -87,7 +87,7 @@ jobs:
       - name: Terraform Init
         run: terraform init
       - name: Terraform Apply
-        if: ${{ inputs.run_apply }}
+        if: ${{ inputs.run_apply || inputs.run_destroy }}
         run: | 
           echo "${{ needs.plan.outputs.tfplan }}" | base64 --decode > tfplan
           terraform apply tfplan
