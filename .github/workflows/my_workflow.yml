@@ -1,0 +1,87 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Multiple Jobs
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      run_apply:
+        description: 'Run Terraform Apply'
+        required: true
+        default: false
+        type: boolean
+      run_destroy:
+        description: 'Run Terraform Destroy'
+        required: true
+        default: false
+        type: boolean
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - test
+          - uat
+          - sandbox
+          - prod
+env:
+  TF_WORKSPACE: ${{ inputs.environment || 'sandbox' }}
+  #TF_WORKSPACE: ${{ inputs.environment }}
+  # env.TF_WORKSPACE = inputs.environment
+  # env.TF_WORKSPACE = inputs.environment or sandbox
+jobs:
+  plan_and_apply:
+    runs-on: ubuntu-latest #linux
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
+      - name: Install / Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -var-file ${{ env.TF_WORKSPACE }}.tfvars -out=tfplan
+
+      - name: Terraform apply
+        if: ${{ inputs.run_apply }}
+        run: terraform apply tfplan
+  destroy:
+    if: ${{ inputs.run_destroy }}
+    runs-on: ubuntu-latest #linux
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install / Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Plan
+        run: terraform plan -destroy -var-file ${{ env.TF_WORKSPACE }}.tfvars -out=tfplan
+      - name: Terraform destroy
+        run: terraform destroy tfplan
+
+      
