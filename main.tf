@@ -40,6 +40,14 @@ resource "aws_vpc" "main" {
   }
 }
 
+resource "aws_key_pair" "deployer" {
+  depends_on = [ aws_vpc.main ]
+  key_name   = "deployer-key"
+  public_key = var.my_ssh_pub_key
+}
+
+variable "my_ssh_pub_key" {}
+
 # resource "aws_subnet" "public" {
 #   vpc_id            = aws_vpc.main.id
 #   cidr_block        = "10.0.1.0/24"
@@ -172,10 +180,6 @@ resource "aws_vpc" "main" {
 #   }
 # }
 
-# resource "aws_key_pair" "deployer" {
-#   key_name   = "deployer-key"
-#   public_key = file("~/.ssh/id_ed25519.pub")
-# }
 
 # resource "aws_launch_template" "default" {
 #   name_prefix = "${var.prefix}-launch-template-"

@@ -19,7 +19,7 @@ on:
       environment:
         description: 'Environment to deploy to'
         required: true
-        default: 'dev'
+        default: 'sandbox'
         type: choice
         options:
           - dev
@@ -29,6 +29,7 @@ on:
           - prod
 env:
   TF_WORKSPACE: ${{ inputs.environment || 'sandbox' }}
+  TF_VAR_my_ssh_pub_key: ${{ secrets.MY_SSH_PUB_KEY }}
   #TF_WORKSPACE: ${{ inputs.environment }}
   # env.TF_WORKSPACE = inputs.environment
   # env.TF_WORKSPACE = inputs.environment or sandbox
@@ -61,6 +62,7 @@ jobs:
         if: ${{ inputs.run_apply }}
         run: terraform apply tfplan
   destroy:
+    needs: plan_and_apply
     if: ${{ inputs.run_destroy }}
     runs-on: ubuntu-latest #linux
     steps:
