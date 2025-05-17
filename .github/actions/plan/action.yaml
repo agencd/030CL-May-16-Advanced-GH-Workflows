@@ -39,9 +39,9 @@ runs:
       id: plan
       run: |
         if [[ "${{ inputs.run_destroy }}" == "true" ]]; then
-          terraform plan -destroy -var-file ${{ input.tf_workspace }}.tfvars -out=tfplan
+          terraform plan -destroy -var-file ${{ inputs.tf_workspace }}.tfvars -out=tfplan
         else
-          terraform plan -var-file ${{ input.tf_workspace }}.tfvars -out=tfplan
+          terraform plan -var-file ${{ inputs.tf_workspace }}.tfvars -out=tfplan
         fi
         echo "tfplan<<EOF" >> $GITHUB_OUTPUT
         base64 < tfplan >> $GITHUB_OUTPUT
