@@ -42,7 +42,7 @@ resource "aws_vpc" "main" {
 
 resource "aws_key_pair" "deployer" {
   depends_on = [ aws_vpc.main ]
-  key_name   = "deployer-key"
+  key_name   = var.prefix == "May-12" ? "deployer-key-may12" : "deployer-key-may16"
   public_key = var.my_ssh_pub_key
 }
 
