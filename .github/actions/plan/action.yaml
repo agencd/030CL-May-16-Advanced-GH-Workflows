@@ -22,6 +22,7 @@ inputs:
 outputs:
   tfplan:
     description: 'Terraform plan output'
+    value: ${{ steps.plan.outputs.tfplan }}
 runs:
   using: "composite"
   steps:
@@ -34,7 +35,7 @@ runs:
     - name: Terraform Init
       run: terraform init
       shell: bash
-
+      
     - name: Terraform Plan
       id: plan
       run: |
