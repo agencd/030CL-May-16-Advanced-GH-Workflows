@@ -43,30 +43,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
   
-      - name: Install / Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.11.4
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      - name: Terraform Init
-        run: terraform init
-      - name: Terraform Plan
+      - name: Reusable Plan Action
         id: plan
-        run: |
-          if [[ "${{ inputs.run_destroy }}" == "true" ]]; then
-            terraform plan -destroy -var-file ${{ env.TF_WORKSPACE }}.tfvars -out=tfplan
-          else
-            terraform plan -var-file ${{ env.TF_WORKSPACE }}.tfvars -out=tfplan
-          fi
-          echo "tfplan<<EOF" >> $GITHUB_OUTPUT
-          base64 < tfplan >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/plan
+        with:
+          tf_api_token: ${{ secrets.TF_API_TOKEN }}
+          run_destroy: ${{ inputs.run_destroy }}
+          run_apply: ${{ inputs.run_apply }}
+          tf_workspace: ${{ env.TF_WORKSPACE }}
   destroy_or_apply:
     needs: plan
     if: ${{ inputs.run_destroy || inputs.run_apply }}

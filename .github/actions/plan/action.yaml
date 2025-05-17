@@ -1,0 +1,49 @@
+name: 'Terraform Plan'
+description: 'Reusable GitHub Action to run terraform plan'
+inputs:
+  tf_api_token:
+    description: 'Terraform API token'
+    required: true
+    default: '.'
+  tf_workspace:
+    description: 'Terraform Wokrspace to use'
+    required: false
+    default: '.'
+  run_destroy:
+    description: 'Run Terraform Destroy'
+    required: true
+    default: false
+    type: boolean
+  run_apply:
+    description: 'Run Terraform Apply'
+    required: true
+    default: false
+    type: boolean
+outputs:
+  tfplan:
+    description: 'Terraform plan output'
+runs:
+  using: "composite"
+  steps:
+    - name: Install / Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.11.4
+        cli_config_credentials_token: ${{ inputs.tf_api_token }}
+
+    - name: Terraform Init
+      run: terraform init
+      shell: bash
+
+    - name: Terraform Plan
+      id: plan
+      run: |
+        if [[ "${{ inputs.run_destroy }}" == "true" ]]; then
+          terraform plan -destroy -var-file ${{ input.tf_workspace }}.tfvars -out=tfplan
+        else
+          terraform plan -var-file ${{ input.tf_workspace }}.tfvars -out=tfplan
+        fi
+        echo "tfplan<<EOF" >> $GITHUB_OUTPUT
+        base64 < tfplan >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+      shell: bash
